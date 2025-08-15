@@ -24,6 +24,7 @@ contract UniswapV2Arb1 {
     function _swap(
         SwapParams memory params
     ) public returns (uint256 amountOut) {
+        // 授权使用tokenIn数量，来兑换tokenOut
         IERC20(params.tokenIn).approve(
             address(params.router0),
             params.amountIn
@@ -35,13 +36,13 @@ contract UniswapV2Arb1 {
         path[1] = params.tokenOut;
 
         uint256[] memory amounts = IUniswapV2Router02(params.router0)
-            .swapExactTokensForTokens(
-                params.amountIn,
-                0,
-                path,
-                address(this),
-                block.timestamp
-            );
+            .swapExactTokensForTokens({
+                amountIn:params.amountIn,
+                amountOutMin:0,
+                path:path,
+                to:address(this),
+                deadline:block.timestamp
+        });
 
         // 授权
         IERC20(params.tokenOut).approve(address(params.router1), amounts[1]);
@@ -49,13 +50,13 @@ contract UniswapV2Arb1 {
         path[0] = params.tokenOut;
         path[1] = params.tokenIn;
 
-        amounts = IUniswapV2Router02(params.router1).swapExactTokensForTokens(
-            amounts[1],
-            params.amountIn,
-            path,
-            address(this),
-            block.timestamp
-        );
+        amounts = IUniswapV2Router02(params.router1).swapExactTokensForTokens({
+            amountIn:amounts[1],
+            amountOutMin:params.amountIn,
+            path:path,
+            to:address(this),
+            deadline:block.timestamp
+        });
 
         amountOut = amounts[1];
     }

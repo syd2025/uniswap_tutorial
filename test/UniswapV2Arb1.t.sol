@@ -23,9 +23,9 @@ contract UniswapV2Arb1Test is Test {
     function setUp() public {
         arb = new UniswapV2Arb1();
 
-        deal(address(this), 100 * 1e18);
+        deal(address(this), 100 * 1e18);  // 给本合约地址充入资金
 
-        weth.deposit{value: 100 * 1e18}();
+        weth.deposit{value: 100 * 1e18}();  // 将100 weth转入WETH合约
         weth.approve(address(uni_router), type(uint256).max);
 
         address[] memory path = new address[](2);
